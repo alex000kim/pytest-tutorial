@@ -57,10 +57,9 @@ def test_apply_discount_amount(setup_teardown):
     computer.apply_discount(amount=discount_amount)
     assert computer.price == price - discount_amount
 
-
-def test_apply_discount_percentage(setup_teardown):
+@pytest.mark.parametrize("discount_percentage", [0.1, 0.5, 0.9])
+def test_apply_discount_percentage(setup_teardown, discount_percentage):
     computer, price, *_ = setup_teardown
-    discount_percentage = 0.3
     computer.apply_discount(percentage=discount_percentage)
     assert computer.price == price * (1 - discount_percentage)
 
