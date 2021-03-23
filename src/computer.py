@@ -1,7 +1,6 @@
 import os
 from datetime import datetime
 
-import boto3
 import joblib
 
 
@@ -43,13 +42,13 @@ class Computer:
     def save_to_disk(self, fname):
         joblib.dump(self, fname)
 
-    def save_to_s3(self, fname, s3_dest, profile_name):
-        session = boto3.Session(profile_name=profile_name)
-        s3 = session.client('s3')
+    def save_to_s3(self, fname, s3_dest, boto3_session):
+        s3_client = boto3_session.client('s3')
         self.save_to_disk(fname)
-        s3.upload_file(fname, s3_dest, f"computer_objects/{fname}")
+        s3_client.upload_file(fname, s3_dest, f"computer_objects/{fname}")
         os.remove(fname)
 
 # if __name__ == "__main__":
 #     my_comp = Computer(price=1000, width=10, length=10, height=10, year_manufactured=2020)
-#     my_comp.save_to_s3('my_comp2', 'alexkim-testbucket', profile_name='acc-9830-6825-7632')
+#     session = boto3.Session(profile_name=os.getenv('AWS_PROFILE'))
+#     my_comp.save_to_s3('my_comp2', 'alexkim-bucket', session)
