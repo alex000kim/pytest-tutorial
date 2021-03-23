@@ -1,9 +1,11 @@
-import joblib
+import os
 from datetime import datetime
+
+import boto3
+import joblib
 
 
 class Computer:
-    # initilizer or constructor
     def __init__(self, price, width, length, height, year_manufactured):
         self.price = price
         self.width = width
@@ -30,12 +32,24 @@ class Computer:
             raise ValueError('To apply discount provide either `amount` or `percentage` values, but not both')
         elif amount is not None:
             if amount >= self.price:
-                raise ValueError(f"Can't apply discount of ${amount} because it's great than the current price of ${self.price}")
+                raise ValueError(
+                    f"Can't apply discount of ${amount} because it's great than the current price of ${self.price}")
             self.price = self.price - amount
         elif percentage is not None:
-            if (percentage >= 1) or (percentage <= 0) :
+            if (percentage >= 1) or (percentage <= 0):
                 raise ValueError(f"Discount percentage must be between 0 and 1. {percentage} provided")
-            self.price = self.price*(1-percentage)
+            self.price = self.price * (1 - percentage)
 
     def save_to_disk(self, fname):
         joblib.dump(self, fname)
+
+    def save_to_s3(self, fname, s3_dest, profile_name):
+        session = boto3.Session(profile_name=profile_name)
+        s3 = session.client('s3')
+        self.save_to_disk(fname)
+        s3.upload_file(fname, s3_dest, f"computer_objects/{fname}")
+        os.remove(fname)
+
+# if __name__ == "__main__":
+#     my_comp = Computer(price=1000, width=10, length=10, height=10, year_manufactured=2020)
+#     my_comp.save_to_s3('my_comp2', 'alexkim-testbucket', profile_name='acc-9830-6825-7632')
