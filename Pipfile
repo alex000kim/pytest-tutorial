@@ -13,6 +13,7 @@ joblib = "*"
 boto3 = "*"
 moto = {extras = ["s3"], version = "*"}
 python-dotenv = "*"
+pytest-xdist = "*"
 
 [requires]
 python_version = "3.8"
